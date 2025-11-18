@@ -1,0 +1,1312 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/*
+ * ===========================================
+ * ROOT VARIABLES (Design Tokens)
+ * ===========================================
+ */
+:root {
+  /* Brand Colors */
+  --color-blue-600: #2563EB;
+  --color-blue-700: #1D4ED8;
+  --color-blue-800: #1E40AF;
+  --color-blue-100: #DBEAFE;
+  --color-blue-50: #EFF6FF;
+
+  /* Gray Colors */
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F3F4F6;
+  --color-gray-200: #E5E7EB;
+  --color-gray-300: #D1D5DB;
+  --color-gray-500: #6B7280;
+  --color-gray-600: #4B5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1F2937;
+  --color-gray-900: #111827;
+  
+  /* Semantic Colors */
+  --color-green-light: #D1FAE5;
+  --color-green-dark: #065F46;
+  --color-yellow-light: #FEF3C7;
+  --color-yellow-dark: #92400E;
+  --color-red-light: #FEE2E2;
+  --color-red-dark: #991B1B;
+  --color-red-600: #DC2626;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-ring: 0 0 0 3px rgba(37, 99, 235, 0.25);
+  --shadow-hover: 0 8px 18px rgba(37, 99, 235, 0.3);
+}
+
+/*
+ * ===========================================
+ * BASE STYLES
+ * ===========================================
+ */
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif; /* Added sans-serif fallback */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-900);
+  }
+
+  /* 🪶 --- SCROLLBARS --- */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 116, 139, 0.4);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(100, 116, 139, 0.6);
+  }
+}
+
+/*
+ * ===========================================
+ * COMPONENT STYLES
+ * ===========================================
+ */
+@layer components {
+
+  /* 🌐 --- TAB NAVIGATION --- */
+  .tab-btn {
+    padding: 1rem 0.25rem;
+    border-bottom: 3px solid transparent;
+    color: var(--color-gray-600);
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+  }
+  .tab-btn.active {
+    border-color: var(--color-blue-600);
+    color: var(--color-blue-800);
+  }
+  .tab-btn:hover:not(.active) {
+    border-color: var(--color-gray-300);
+    color: var(--color-gray-900);
+    transform: translateY(-2px);
+  }
+  .tab-content.hidden {
+    display: none;
+  }
+
+  /* 📆 --- MONTH HEADER (shared by all tabs) --- */
+  .month-header {
+    @apply flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 bg-white rounded-lg shadow-sm p-3 border border-gray-100;
+    transition: box-shadow 0.2s ease-in-out;
+  }
+  .month-header:hover {
+    box-shadow: var(--shadow-md);
+  }
+  .month-header .range-btn {
+    @apply px-3 py-1 rounded text-sm font-medium border border-gray-300 bg-white text-gray-700;
+    transition: all 0.2s ease-in-out;
+  }
+  .month-header .range-btn:hover:not(.active) {
+    @apply bg-gray-50;
+    transform: translateY(-1px);
+  }
+  .month-header .range-btn.active {
+    @apply bg-blue-600 text-white border-blue-600;
+    box-shadow: var(--shadow-hover);
+  }
+  .month-header .month-nav-btn {
+    @apply px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 transition-all;
+    transition-duration: 0.2s;
+  }
+  .month-header .month-nav-btn:hover {
+    transform: scale(1.1);
+  }
+  .month-header .month-label {
+    @apply font-semibold text-gray-700 cursor-pointer hover:text-blue-600 transition;
+  }
+
+  /* 🧾 --- TABLE DESIGN --- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    vertical-align: middle;
+    padding: 1rem; /* p-4 */
+    border-bottom: 1px solid var(--color-gray-200);
+  }
+  th {
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: var(--color-gray-700);
+    background-color: var(--color-gray-50);
+  }
+  tbody tr {
+    transition: background-color 0.2s ease;
+  }
+  tbody tr:hover {
+    background-color: var(--color-gray-50);
+  }
+
+  /* 🧩 --- STAT CARDS --- */
+  .stat-card {
+    @apply bg-white p-6 rounded-lg shadow-md transition-all duration-300;
+  }
+  .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+  /* Clickable variant */
+  .stat-card[data-modal-type] {
+    cursor: pointer;
+  }
+
+  /* 💬 --- STATUS PILLS --- */
+  .status-pill {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-align: center;
+    display: inline-block;
+    text-transform: capitalize;
+  }
+  .status-paid { background-color: var(--color-green-light); color: var(--color-green-dark); }
+  .status-partial { background-color: var(--color-yellow-light); color: var(--color-yellow-dark); }
+  .status-unpaid { background-color: var(--color-red-light); color: var(--color-red-dark); }
+  .status-archived { background-color: var(--color-gray-200); color: var(--color-gray-700); }
+
+  /* 🪟 --- MODAL STYLING --- */
+  .modal-overlay {
+    @apply fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 transition-opacity duration-300;
+  }
+  .modal-content {
+    @apply bg-white rounded-lg shadow-2xl w-full max-w-md transform transition-transform duration-300 scale-95;
+  }
+  .modal-content.show {
+    @apply scale-100;
+  }
+
+  /* 🧠 --- INPUT + FORM ELEMENTS --- */
+  input, select, textarea {
+    @apply border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500;
+    transition: box-shadow 0.2s ease;
+  }
+  input:focus, select:focus, textarea:focus {
+    box-shadow: var(--shadow-ring);
+  }
+  input[readonly], select[readonly] {
+    background-color: var(--color-gray-100);
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  /* 💾 --- PRIMARY BUTTONS --- */
+  .btn-primary {
+    @apply bg-blue-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+    transition: all 0.2s ease-in-out;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  /* ⚙️ --- SECONDARY / CANCEL BUTTONS --- */
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-md hover:bg-gray-300 transition-all;
+    transition-duration: 0.2s;
+  }
+  .btn-secondary:hover {
+    transform: translateY(-1px);
+  }
+
+  /* 🌗 --- GLOBAL OVERLAY SPINNER --- */
+  #global-loading-overlay {
+    backdrop-filter: blur(2px);
+  }
+}
+
+/*
+ * ===========================================
+ * GLOBAL CLASSES & ANIMATIONS
+ * ===========================================
+ */
+
+/* 🔁 --- SPINNERS --- */
+.spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ✅ --- TOAST NOTIFICATION STYLES --- */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background-color: #10b981;
+  color: white;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s ease-in-out;
+  z-index: 1000;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.toast.error {
+  background-color: #ef4444;
+}
+
+/* --- Print Styles --- */
+@media print {
+  body, .tab-content {
+    background-color: #fff !important;
+  }
+  nav, main > div > div:first-child, .no-print, button, .month-header, .btn-primary, .btn-secondary, .card-header-btn {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    border: 1px solid #000;
+    padding: 8px;
+  }
+  th {
+    background-color: #eee;
+  }
+}
+
+/* --- SORTABLE TABLE HEADERS --- */
+th.sortable {
+  cursor: pointer;
+  position: relative;
+  padding-right: 20px;
+}
+th.sortable:hover {
+  background-color: var(--color-gray-100);
+}
+th.sortable::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.3;
+  border: 4px solid transparent;
+}
+th.sortable.sort-asc::after {
+  opacity: 1;
+  border-bottom-color: var(--color-gray-700);
+}
+th.sortable.sort-desc::after {
+  opacity: 1;
+  border-top-color: var(--color-gray-700);
+}
+
+/* --- ACTIVITY FEED --- */
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem; /* 12px */
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-gray-100);
+}
+.activity-item:last-child {
+  border-bottom: none;
+}
+.activity-icon {
+  flex-shrink: 0;
+  font-size: 1.25rem; /* 20px */
+  margin-top: 2px;
+}
+
+/*
+ * ===========================================
+ * MODULE-SPECIFIC COMPONENTS
+ * ===========================================
+ */
+
+/* --- 🧑‍🏫 TEACHER TIMETABLE --- */
+.timetable-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(120px, 1fr));
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.day-column {
+  border-right: 1px solid var(--color-gray-200);
+  min-height: 200px;
+}
+.day-column:last-child {
+  border-right: none;
+}
+.day-column h4 {
+  padding: 0.75rem 0.5rem;
+  background-color: var(--color-gray-50);
+  border-bottom: 1px solid var(--color-gray-200);
+  text-align: center;
+}
+.day-column.unavailable {
+  background-color: var(--color-gray-50);
+  opacity: 0.6;
+}
+.day-column.unavailable h4 {
+  background-color: var(--color-gray-100);
+}
+.class-list {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.class-card {
+  background-color: var(--color-blue-50);
+  border: 1px solid var(--color-blue-100);
+  border-radius: 0.375rem; /* rounded-md */
+  padding: 0.5rem;
+  font-size: 0.875rem; /* text-sm */
+  line-height: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: var(--shadow-sm);
+}
+.class-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: #bfdbfe; /* blue-200 */
+}
+.class-card-name {
+  color: var(--color-blue-800);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.class-card-footer {
+  margin-top: 0.25rem;
+  font-size: 0.75rem; /* text-xs */
+  color: #1d4ed8; /* blue-700 */
+  opacity: 0.8;
+}
+
+/* --- 💸 EXPENSES DASHBOARD --- */
+.card-header-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem; /* w-8 */
+  height: 2rem; /* h-8 */
+  border-radius: 9999px; /* rounded-full */
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-600);
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 600;
+  line-height: 1;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+.card-header-btn:hover {
+  background-color: var(--color-blue-600);
+  color: white;
+  transform: scale(1.1) rotate(90deg);
+}
+.table-action-btn {
+  padding: 0.5rem; /* p-2 */
+  border-radius: 0.375rem; /* rounded-md */
+  transition: background-color 0.2s ease;
+  line-height: 1;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+.table-action-btn:hover {
+  background-color: var(--color-gray-100);
+}
+.table-action-btn.delete-salary-btn:hover,
+.table-action-btn.delete-bill-btn:hover,
+.table-action-btn.delete-expense-btn:hover {
+  background-color: var(--color-red-light);
+  color: var(--color-red-dark);
+}
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem; /* p-8 */
+  text-align: center;
+  height: 100%;
+  min-height: 150px;
+}
+.card-full {
+  background-color: var(--color-gray-50);
+  opacity: 0.7;
+}
+.card-full:hover {
+  opacity: 1;
+  background-color: var(--color-gray-100);
+}
+.health-tag {
+  font-size: 0.75rem; /* text-xs */
+  font-weight: 600; /* font-semibold */
+  padding: 0.125rem 0.5rem; /* px-2 py-0.5 */
+  border-radius: 9999px; /* rounded-full */
+}
+.health-green {
+  background-color: #dcfce7; /* green-100 */
+  color: #166534; /* green-800 */
+}
+.health-yellow {
+  background-color: #fef9c3; /* yellow-100 */
+  color: #854d0e; /* yellow-800 */
+}
+.health-blue {
+  background-color: #dbeafe; /* blue-100 */
+  color: #1e40af; /* blue-800 */
+}
+.health-red {
+  background-color: #fee2e2; /* red-100 */
+  color: #991b1b; /* red-800 */
+}
+
+/* --- PAYROLL BREAKDOWN --- */
+.payroll-breakdown {
+  space-y: 0.5rem; /* space-y-2 */
+  max-height: 10rem; /* max-h-40 */
+  overflow-y: auto;
+  padding-right: 0.5rem; /* pr-2 */
+  border-top: 1px solid var(--color-gray-200);
+  border-bottom: 1px solid var(--color-gray-200);
+  padding-top: 0.5rem; /* pt-2 */
+  padding-bottom: 0.5rem; /* pb-2 */
+}
+.payroll-class-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem; /* text-sm */
+}
+.payroll-class-name {
+  color: var(--color-gray-600);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+.payroll-class-share {
+  font-weight: 500; /* font-medium */
+  color: #166534; /* green-800 */
+}
+
+/* === ADD THIS TO YOUR MAIN CSS === */
+
+/* --- Lesson Log Modal --- */
+.teacher-list .teacher-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  background-color: #F3F4F6; /* gray-100 */
+  color: #374151; /* gray-700 */
+  transition: all 0.2s ease;
+  border: 1px solid #E5E7EB; /* gray-200 */
+}
+.teacher-list .teacher-btn:hover {
+  background-color: #E5E7EB; /* gray-200 */
+}
+.teacher-list .teacher-btn.active {
+  background-color: #2563EB; /* blue-600 */
+  color: white;
+  border-color: #1D4ED8; /* blue-700 */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.calendar-header {
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-align: center;
+  color: #6B7280; /* gray-500 */
+  padding-bottom: 0.5rem;
+}
+.calendar-day {
+  border: 1px solid #E5E7EB; /* gray-200 */
+  border-radius: 0.375rem;
+  min-height: 80px;
+  padding: 4px;
+  background-color: white;
+  transition: background-color 0.2s ease;
+}
+.calendar-day:not(.empty):hover {
+  background-color: #EFF6FF; /* blue-50 */
+  border-color: #BFDBFE; /* blue-200 */
+  cursor: pointer;
+}
+.calendar-day.empty {
+  background-color: #F9FAFB; /* gray-50 */
+  border: 1px dashed #E5E7EB;
+}
+.day-number {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #4B5563; /* gray-600 */
+}
+.lesson-chips {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lesson-chip {
+  background-color: #DBEAFE; /* blue-100 */
+  color: #1E40AF; /* blue-800 */
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lesson-chip:hover {
+  background-color: #FEE2E2; /* red-100 */
+  color: #991B1B; /* red-800 */
+}
+
+/* === ADD THIS TO YOUR MAIN CSS === */
+
+/* --- Lesson Log Modal --- */
+.step-container {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+.step-container.active-step {
+  border-color: var(--color-blue-600);
+  background-color: #fff;
+  box-shadow: var(--shadow-md);
+}
+.step-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-gray-700);
+}
+
+.teacher-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+.teacher-list .teacher-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  background-color: #fff;
+  color: var(--color-gray-700);
+  transition: all 0.2s ease;
+  border: 1px solid var(--color-gray-300);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.teacher-list .teacher-btn:hover {
+  background-color: var(--color-gray-100);
+}
+.teacher-list .teacher-btn.active {
+  background-color: var(--color-blue-600);
+  color: white;
+  border-color: var(--color-blue-700);
+  box-shadow: var(--shadow-sm);
+  transform: scale(1.05);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.calendar-header {
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-gray-500);
+  padding-bottom: 0.5rem;
+}
+.calendar-day {
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  min-height: 80px;
+  padding: 4px;
+  background-color: white;
+  transition: background-color 0.2s ease;
+}
+.calendar-day:not(.empty):hover {
+  background-color: var(--color-blue-50);
+  border-color: #BFDBFE; /* blue-200 */
+  cursor: pointer;
+}
+.calendar-day.empty {
+  background-color: var(--color-gray-50);
+  border: 1px dashed var(--color-gray-200);
+}
+.day-number {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-gray-600);
+}
+.lesson-chips {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lesson-chip {
+  background-color: var(--color-blue-100);
+  color: var(--color-blue-800);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lesson-chip:hover {
+  background-color: var(--color-red-light);
+  color: var(--color-red-dark);
+  transform: scale(1.05);
+}
+
+/* === ADD THIS TO YOUR MAIN CSS === */
+
+/* --- Lesson Log Modal --- */
+.step-container {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+  background-color: #F9FAFB; /* gray-50 */
+}
+.step-container.active-step {
+  border-color: var(--color-blue-600);
+  background-color: #fff;
+  box-shadow: var(--shadow-md);
+}
+.step-container.disabled-step {
+  opacity: 0.5;
+  background-color: #F3F4F6; /* gray-100 */
+  pointer-events: none;
+}
+.step-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-gray-700);
+}
+
+.teacher-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+.teacher-list .teacher-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  background-color: #fff;
+  color: var(--color-gray-700);
+  transition: all 0.2s ease;
+  border: 1px solid var(--color-gray-300);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.teacher-list .teacher-btn:hover {
+  background-color: var(--color-gray-100);
+}
+.teacher-list .teacher-btn.active {
+  background-color: var(--color-blue-600);
+  color: white;
+  border-color: var(--color-blue-700);
+  box-shadow: var(--shadow-sm);
+  transform: scale(1.05);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.calendar-header {
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-gray-500);
+  padding-bottom: 0.5rem;
+}
+.calendar-day {
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  min-height: 80px;
+  padding: 4px;
+  background-color: white;
+  transition: background-color 0.2s ease;
+}
+.calendar-day:not(.empty):hover {
+  background-color: var(--color-blue-50);
+  border-color: #BFDBFE; /* blue-200 */
+  cursor: pointer;
+}
+.calendar-day.empty {
+  background-color: var(--color-gray-50);
+  border: 1px dashed var(--color-gray-200);
+}
+.day-number {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-gray-600);
+}
+.lesson-chips {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lesson-chip {
+  background-color: var(--color-blue-100);
+  color: var(--color-blue-800);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lesson-chip:hover {
+  background-color: var(--color-red-light);
+  color: var(--color-red-dark);
+  transform: scale(1.05);
+}
+
+/* --- Lesson Log Modal --- */
+.step-container {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+  background-color: #F9FAFB; /* gray-50 */
+}
+.step-container.active-step {
+  border-color: var(--color-blue-600);
+  background-color: #fff;
+  box-shadow: var(--shadow-md);
+}
+.step-container.disabled-step {
+  opacity: 0.5;
+  background-color: #F3F4F6; /* gray-100 */
+  pointer-events: none;
+}
+.step-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-gray-700);
+}
+
+.teacher-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+.teacher-list .teacher-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  background-color: #fff;
+  color: var(--color-gray-700);
+  transition: all 0.2s ease;
+  border: 1px solid var(--color-gray-300);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.teacher-list .teacher-btn:hover {
+  background-color: var(--color-gray-100);
+}
+.teacher-list .teacher-btn.active {
+  background-color: var(--color-blue-600);
+  color: white;
+  border-color: var(--color-blue-700);
+  box-shadow: var(--shadow-sm);
+  transform: scale(1.05);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.calendar-header {
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-gray-500);
+  padding-bottom: 0.5rem;
+}
+.calendar-day {
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  min-height: 80px;
+  padding: 4px;
+  background-color: white;
+  transition: background-color 0.2s ease;
+}
+.calendar-day:not(.empty):hover {
+  background-color: var(--color-blue-50);
+  border-color: #BFDBFE; /* blue-200 */
+  cursor: pointer;
+}
+.calendar-day.empty {
+  background-color: var(--color-gray-50);
+  border: 1px dashed var(--color-gray-200);
+}
+.day-number {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-gray-600);
+}
+.lesson-chips {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lesson-chip {
+  background-color: var(--color-blue-100);
+  color: var(--color-blue-800);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lesson-chip:hover {
+  background-color: var(--color-red-light);
+  color: var(--color-red-dark);
+  transform: scale(1.05);
+}
+
+/* --- ✨ NEW: Spinner for buttons --- */
+.btn-spinner {
+  width: 1.25rem; /* w-5 */
+  height: 1.25rem; /* h-5 */
+  border: 2px solid transparent;
+  border-top-color: white;
+  border-right-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+.btn-secondary .btn-spinner {
+  border-top-color: var(--color-gray-700);
+  border-right-color: var(--color-gray-700);
+}
+
+.calendar-day.drag-over {
+  background-color: #dbeafe; /* A light blue */
+  outline: 2px dashed #3b82f6; /* A dashed blue outline */
+  outline-offset: -2px;
+}
+
+/* Disables pointer events and dims a day while loading */
+.calendar-day.day-loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Creates a small spinner to replace the day number */
+.calendar-day .day-spinner .animate-spin {
+  width: 1rem; /* 16px */
+  height: 1rem; /* 16px */
+  border-width: 2px;
+  /* Make the spinner blue to stand out */
+  border-bottom-color: #3b82f6; 
+  border-top-color: #3b82f6;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+/* Makes the chip loading spinner white */
+.lesson-chip.chip-loading .animate-spin {
+  width: 0.75rem; /* 12px */
+  height: 0.75rem; /* 12px */
+  border-width: 2px;
+}
+
+/* In your main style.css */
+
+/* --- Class Finder Modal Styles --- */
+#class-finder-list .class-row {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr 1fr; /* Name | Schedule | Fullness | Button */
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb; /* gray-200 */
+}
+#class-finder-list .class-row:last-child {
+  border-bottom: none;
+}
+#class-finder-list .class-row:hover {
+  background-color: #f9fafb; /* gray-50 */
+}
+
+.fullness-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fullness-bar-track {
+  flex-grow: 1;
+  height: 1.25rem;
+  background-color: #e5e7eb; /* gray-200 */
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #d1d5db; /* gray-300 */
+}
+
+.fullness-bar-fill {
+  height: 100%;
+  background-color: #3b82f6; /* blue-500 */
+  transition: width 0.3s ease-out;
+}
+
+/* Style for a full bar */
+.fullness-bar-fill.is-full {
+  background-color: #dc2626; /* red-600 */
+}
+
+/* --- NEW: Class Finder Modal V2 Styles --- */
+#modal-container-child .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.7); /* bg-slate-900/70 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  /* --- CRITICAL: Must be higher than parent modal's z-50 --- */
+  z-index: 60;
+}
+
+#modal-container-child .modal-content {
+  background-color: white;
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); /* shadow-2xl */
+  width: 100%;
+  max-width: 64rem; /* max-w-6xl */
+  /* --- CRITICAL: Must be higher than overlay --- */
+  z-index: 70; 
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh; /* Don't overflow screen */
+}
+
+#class-finder-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem; /* gap-3 */
+  padding: 0.75rem 1rem; /* p-3 */
+  background-color: #f9fafb; /* bg-gray-50 */
+  border-bottom: 1px solid #e5e7eb; /* border-b */
+}
+
+/* Filter button styling */
+.filter-btn-group .filter-btn {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #d1d5db; /* border-gray-300 */
+  background-color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.1s;
+}
+.filter-btn-group .filter-btn:first-child {
+  border-top-left-radius: 0.375rem;
+  border-bottom-left-radius: 0.375rem;
+}
+.filter-btn-group .filter-btn:last-child {
+  border-top-right-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+}
+.filter-btn-group .filter-btn.active {
+  background-color: #3b82f6; /* bg-blue-500 */
+  color: white;
+  border-color: #3b82f6; /* border-blue-500 */
+  z-index: 10;
+}
+.filter-btn-group .filter-btn:not(.active):hover {
+  background-color: #f3f4f6; /* bg-gray-100 */
+}
+
+#class-finder-table-container {
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+#class-finder-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#class-finder-table thead {
+  position: sticky;
+  top: 0;
+  background-color: #f9fafb; /* bg-gray-50 */
+  z-index: 10;
+}
+
+#class-finder-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem; /* text-xs */
+  font-weight: 600;
+  color: #4b5563; /* text-gray-600 */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e5e7eb; /* border-b */
+}
+
+#class-finder-table th.sortable {
+  cursor: pointer;
+}
+#class-finder-table th.sortable:hover {
+  background-color: #f3f4f6; /* bg-gray-100 */
+}
+#class-finder-table th.sort-asc::after,
+#class-finder-table th.sort-desc::after {
+  content: '';
+  display: inline-block;
+  margin-left: 0.5rem;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+#class-finder-table th.sort-asc::after {
+  border-bottom: 4px solid #4b5563; /* text-gray-600 */
+}
+#class-finder-table th.sort-desc::after {
+  border-top: 4px solid #4b5563; /* text-gray-600 */
+}
+
+
+#class-finder-table tbody tr:hover {
+  background-color: #f9fafb; /* bg-gray-50 */
+}
+
+#class-finder-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb; /* border-b */
+  vertical-align: top;
+}
+
+.fullness-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.fullness-bar-track {
+  flex-grow: 1;
+  height: 1.25rem;
+  background-color: #e5e7eb; /* gray-200 */
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #d1d5db; /* gray-300 */
+}
+
+.fullness-bar-fill {
+  height: 100%;
+  background-color: #3b82f6; /* blue-500 */
+  transition: width 0.3s ease-out;
+}
+.fullness-bar-fill.is-full {
+  background-color: #dc2626; /* red-600 */
+}
+
+/* --- NEW: Teacher Finder (Individual Slot) Modal --- */
+#teacher-finder-modal-content {
+  display: grid;
+  grid-template-columns: 200px 1fr; /* Teacher list | Timetable */
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+#teacher-finder-list {
+  background-color: #f9fafb; /* bg-gray-50 */
+  border-right: 1px solid #e5e7eb; /* border-gray-200 */
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+#teacher-finder-list .teacher-btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.375rem; /* rounded-md */
+  text-align: left;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+#teacher-finder-list .teacher-btn:hover {
+  background-color: #f3f4f6; /* bg-gray-100 */
+}
+#teacher-finder-list .teacher-btn.active {
+  background-color: #3b82f6; /* bg-blue-500 */
+  color: white;
+}
+
+#teacher-finder-timetable {
+  overflow: auto; /* Allows scrolling both X and Y */
+  background-color: white;
+}
+
+.timetable-grid-full {
+  display: grid;
+  grid-template-columns: 60px repeat(7, 1fr); /* Time | Mon | Tue ... */
+  min-width: 800px; /* Ensure it's wide enough to scroll */
+}
+
+.timetable-header, .timetable-time, .timetable-slot {
+  padding: 0.5rem;
+  border-bottom: 1px solid #f3f4f6; /* bg-gray-100 */
+  border-right: 1px solid #f3f4f6; /* bg-gray-100 */
+  min-height: 50px;
+  font-size: 0.75rem; /* text-xs */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timetable-header {
+  font-weight: 600;
+  background-color: #f9fafb; /* bg-gray-50 */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.timetable-time {
+  font-weight: 600;
+  color: #4b5563; /* text-gray-600 */
+  position: sticky;
+  left: 0;
+  background-color: #f9fafb; /* bg-gray-50 */
+  z-index: 5;
+}
+
+/* --- Timetable v2 Styles --- */
+
+.timetable-slot {
+  /* Base styles for all cells */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid #e5e7eb; /* grid lines */
+  height: 40px;
+  transition: all 0.15s ease;
+}
+
+.timetable-slot.is-off {
+  background-color: #f9fafb; /* bg-gray-50 */
+  color: #d1d5db; /* text-gray-300 */
+  cursor: not-allowed;
+  /* We will set the text to '' (empty) in the JS */
+}
+
+.timetable-slot.is-booked {
+  background-color: #fee2e2; /* bg-red-100 */
+  color: #dc2626; /* text-red-600 */
+  cursor: not-allowed;
+  font-weight: 600;
+  
+  /* ✨ Bonus: Add a subtle striped pattern */
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(0,0,0,0.03),
+    rgba(0,0,0,0.03) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+}
+
+.timetable-slot.is-available {
+  background-color: #eff6ff; /* bg-blue-50 */
+  color: #2563eb; /* text-blue-700 */
+  font-weight: 600;
+  cursor: pointer;
+  border-color: #bfdbfe; /* border-blue-200 */
+}
+
+.timetable-slot.is-available:hover {
+  background-color: #dbeafe; /* bg-blue-200 */
+  color: #1d4ed8; /* text-blue-800 */
+}

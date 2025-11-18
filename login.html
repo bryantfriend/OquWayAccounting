@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OquWay Admin Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-100">
+
+  <!-- Login Container -->
+  <div class="bg-white p-8 rounded-lg shadow-md w-80">
+    <h1 class="text-2xl font-bold mb-4 text-center text-gray-800">OquWay Admin Login</h1>
+
+    <input id="email" type="email"
+           class="w-full border border-gray-300 rounded px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-500 outline-none"
+           placeholder="Email" />
+
+    <input id="password" type="password"
+           class="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 outline-none"
+           placeholder="Password" />
+
+    <button id="loginBtn"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded transition">
+      Login
+    </button>
+
+    <p id="errorMsg" class="text-red-600 mt-3 text-sm text-center hidden"></p>
+
+    <div id="loadingSpinner" class="hidden mt-4 flex justify-center">
+      <div class="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth } from './firebase-init.js';
+    import { signInWithEmailAndPassword, onAuthStateChanged } 
+      from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import {
+      setPersistence,
+      browserLocalPersistence
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const errorMsg = document.getElementById('errorMsg');
+    const spinner = document.getElementById('loadingSpinner');
+
+    // If already logged in, redirect to dashboard automatically
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = './index.html';
+      }
+    });
+
+    loginBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      if (!email || !password) {
+        errorMsg.textContent = "Please enter both email and password.";
+        errorMsg.classList.remove('hidden');
+        return;
+      }
+
+      errorMsg.classList.add('hidden');
+      spinner.classList.remove('hidden');
+      loginBtn.disabled = true;
+
+      try {
+        await setPersistence(auth, browserLocalPersistence); // 🔒 keeps user logged in
+        const userCred = await signInWithEmailAndPassword(auth, email, password);
+        console.log("✅ Logged in:", userCred.user.email);
+        window.location.href = './index.html';
+      } catch (error) {
+        console.error(error);
+        errorMsg.textContent = "Invalid email or password.";
+        errorMsg.classList.remove('hidden');
+      } finally {
+        spinner.classList.add('hidden');
+        loginBtn.disabled = false;
+      }
+    });
+  </script>
+
+</body>
+</html>
