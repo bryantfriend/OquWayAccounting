@@ -112,71 +112,82 @@ export class TeacherFinderModal extends BaseModal {
       return true;
   }
 
-  renderContent() {
+renderContent() {
     const titleText = this.student.id ? 
-      `<span class="font-medium">Settings for new class:</span>` : 
-      `<span class="font-medium text-blue-600">Viewing availability for: ${this.student.name}</span>`;
+        `<span class="font-medium text-gray-700">Finding class for: <strong>${this.student.name}</strong></span>` : 
+        `<span class="font-medium text-blue-600">Browsing Availability (Prospective)</span>`;
 
     return `
-      <div class="border-b p-3 bg-gray-50 flex flex-col gap-3">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                ${titleText}
-                <label class="flex items-center gap-2 cursor-pointer select-none bg-white border rounded px-2 py-1 shadow-sm">
-                   <input type="checkbox" id="class-mode-toggle" class="form-checkbox text-blue-600" ${this.state.isOnline ? 'checked' : ''}>
-                   <span class="font-medium">Online Class</span>
-                </label>
-            </div>
+      <div class="border-b bg-white shadow-sm z-10 relative">
+        <div class="flex items-center justify-between p-3 border-b border-gray-100">
+            <div>${titleText}</div>
+            
             <div class="flex items-center gap-2 filter-btn-group" data-filter-group="scheduleType">
-                <span class="text-sm font-medium">Schedule:</span>
-                <button class="filter-btn ${this.state.scheduleType === 'mwf' ? 'active' : ''}" data-value="mwf">Mon/Wed/Fri</button>
-                <button class="filter-btn ${this.state.scheduleType === 'tts' ? 'active' : ''}" data-value="tts">Tue/Thu/Sat</button>
+                <span class="text-sm font-medium text-gray-600">Schedule:</span>
+                <button class="filter-btn px-4 py-1.5 rounded-md text-sm font-medium transition ${this.state.scheduleType === 'mwf' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}" data-value="mwf">Mon/Wed/Fri</button>
+                <button class="filter-btn px-4 py-1.5 rounded-md text-sm font-medium transition ${this.state.scheduleType === 'tts' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}" data-value="tts">Tue/Thu/Sat</button>
             </div>
         </div>
 
-        <div class="flex items-center gap-6 text-sm border-t pt-2">
+        <div class="flex flex-wrap items-center gap-3 p-3 bg-gray-50">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider mr-1">Filters:</span>
             
-            <div class="relative">
-                <span class="absolute left-2 top-1.5 text-gray-400">🔍</span>
-                <input type="text" id="teacher-search-input" class="pl-7 pr-2 py-1 border rounded w-48" placeholder="Filter by teacher..." value="${this.state.teacherSearch}">
+            <div class="filter-chip ${this.state.isOnline ? 'active' : ''}" id="mode-chip">
+               <span>${this.state.isOnline ? '💻 Online' : '🛖 Offline'}</span>
             </div>
 
-            <div class="flex items-center gap-3">
-                <span class="font-medium text-gray-600">Languages:</span>
-                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" class="lang-filter" value="English" ${this.state.languages.English ? 'checked' : ''}> English</label>
-                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" class="lang-filter" value="Russian" ${this.state.languages.Russian ? 'checked' : ''}> Russian</label>
-                <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" class="lang-filter" value="Kyrgyz" ${this.state.languages.Kyrgyz ? 'checked' : ''}> Kyrgyz</label>
+            <div class="h-6 w-px bg-gray-300 mx-2"></div> <div class="filter-chip lang-filter ${this.state.languages.English ? 'active' : ''}" data-value="English">
+               <span>🇺🇸 English</span>
+            </div>
+            <div class="filter-chip lang-filter ${this.state.languages.Russian ? 'active' : ''}" data-value="Russian">
+               <span>🇷🇺 Russian</span>
+            </div>
+            <div class="filter-chip lang-filter ${this.state.languages.Kyrgyz ? 'active' : ''}" data-value="Kyrgyz">
+               <span>🇰🇬 Kyrgyz</span>
+            </div>
+
+            <div class="ml-auto relative">
+                <span class="absolute left-2 top-1.5 text-gray-400">🔍</span>
+                <input type="text" id="teacher-search-input" 
+                       class="pl-7 pr-3 py-1.5 text-sm border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none w-48 transition-all" 
+                       placeholder="Search teacher..." value="${this.state.teacherSearch}">
             </div>
         </div>
       </div>
 
-      <div id="teacher-finder-timetable" class="overflow-auto max-h-[70vh]"></div>
+      <div id="teacher-finder-timetable" class="overflow-auto max-h-[65vh] bg-white"></div>
       
-      <div class="p-2 text-xs text-center text-gray-500 bg-gray-50 border-t flex justify-center gap-4">
-        <span><span class="inline-block w-3 h-3 bg-blue-50 border border-blue-200 mr-1"></span> Open (Create New)</span>
-        <span><span class="inline-block w-3 h-3 bg-green-100 border border-green-200 mr-1"></span> Existing Group (Join)</span>
-        <span><span class="inline-block w-3 h-3 bg-red-50 border border-red-100 mr-1"></span> Booked</span>
+      <div class="p-2 text-xs text-center text-gray-500 bg-gray-50 border-t flex justify-center gap-6">
+        <span><span class="w-3 h-3 rounded-full bg-blue-50 border border-blue-300"></span> Open (Create New)</span>
+        <span><span class="w-3 h-3 rounded-full bg-green-100 border border-green-400"></span> Existing Group (Join)</span>
+        <span><span class="w-3 h-3 rounded-full bg-red-50 border border-red-100"></span> Booked/Unavailable</span>
       </div>
     `;
   }
 
   renderFooter() { return ''; }
   
-  attachEventListeners() {
+attachEventListeners() {
     this.renderTimetable(); 
 
-    const modeToggle = this.modalEl.querySelector('#class-mode-toggle');
-    modeToggle?.addEventListener('change', e => {
-        this.state.isOnline = e.target.checked;
-        this.renderTimetable(); // Re-render to filter teachers
+    // --- Mode Toggle (Chip) ---
+    const modeChip = this.modalEl.querySelector('#mode-chip');
+    modeChip?.addEventListener('click', () => {
+        this.state.isOnline = !this.state.isOnline;
+        modeChip.classList.toggle('active', this.state.isOnline);
+        modeChip.querySelector('span').textContent = this.state.isOnline ? '💻 Online' : '🛖 Offline';
+        
+        this.renderTimetable();
     });
 
+    // --- Teacher Search Filter ---
     const searchInput = this.modalEl.querySelector('#teacher-search-input');
     searchInput?.addEventListener('input', e => {
         this.state.teacherSearch = e.target.value.toLowerCase();
         this.renderTimetable();
     });
 
+    // --- Schedule Type Toggle ---
     const scheduleGroup = this.modalEl.querySelector('[data-filter-group="scheduleType"]');
     scheduleGroup?.addEventListener('click', e => {
         const btn = e.target.closest('.filter-btn');
@@ -188,13 +199,41 @@ export class TeacherFinderModal extends BaseModal {
         }
     });
 
-    this.modalEl.querySelectorAll('.lang-filter').forEach(cb => {
-        cb.addEventListener('change', (e) => {
-            this.state.languages[e.target.value] = e.target.checked;
+    // --- Language Filters (Chips Handler) ---
+    this.modalEl.querySelectorAll('.lang-filter').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const lang = chip.dataset.value;
+            this.state.languages[lang] = !this.state.languages[lang];
+            
+            chip.classList.toggle('active', this.state.languages[lang]);
             this.renderTimetable(); 
         });
     });
 
+    // --- Helper to check filters (must be the same as the one in renderTimetable) ---
+    const passesFilters = (teacher) => {
+        if (this.state.teacherSearch && !teacher.name.toLowerCase().includes(this.state.teacherSearch)) return false;
+        const activeLangs = Object.keys(this.state.languages).filter(k => this.state.languages[k]);
+        if (activeLangs.length > 0) {
+           const tLangs = (teacher.languages || '').toLowerCase();
+           if (!activeLangs.some(lang => tLangs.includes(lang.toLowerCase()))) return false;
+        }
+        const tMode = teacher.teachingMode || 'offline';
+        if (this.state.isOnline && tMode === 'offline') return false;
+        if (!this.state.isOnline && tMode === 'online') return false;
+        return true;
+    };
+    
+    // --- Helper to check class mode match ---
+    const modeFilterCheck = (item) => {
+        const classIsOnline = item.cls.isOnline || false;
+        if (this.state.isOnline && !classIsOnline) return false;
+        if (!this.state.isOnline && classIsOnline) return false;
+        return true;
+    };
+
+
+    // --- 5. Grid Click Handler (The Core Logic) ---
     this.modalEl.querySelector('#teacher-finder-timetable').addEventListener('click', e => {
       const slot = e.target.closest('.timetable-slot.is-available');
       if (!slot) return;
@@ -211,38 +250,66 @@ export class TeacherFinderModal extends BaseModal {
       
       const daySlots = daysInSchedule.map(d => this.masterSchedule.get(`${d}-${time}`));
 
-      // Filter available teachers using our shared filter logic
+      // --- A. FIND NEW TEACHERS ---
       let validNewTeachers = [];
       if (daySlots.every(ds => ds)) {
           const firstDayTeachers = daySlots[0].availableNew;
           validNewTeachers = firstDayTeachers
-            .filter(t => this._shouldShowTeacher(t)) // Apply Filters
+            .filter(t => passesFilters(t))
             .filter(t => daySlots.every(ds => ds.availableNew.some(other => other.id === t.id)));
       }
 
+      // --- B. FIND JOINABLE CLASSES ---
       let validJoinableClasses = [];
-      if (daySlots[0] && daySlots[0].availableJoin.length > 0) {
-          daySlots[0].availableJoin.forEach(item => {
-             if (!this._shouldShowTeacher(item.teacher)) return; // Apply Filters
-
-             const targetClassId = item.cls.id;
-             const existsEverywhere = daySlots.every(ds => ds.availableJoin.some(j => j.cls.id === targetClassId));
-             if (existsEverywhere) validJoinableClasses.push(item);
+      const currentDaySlot = this.masterSchedule.get(`${day}-${time}`);
+      
+      if (currentDaySlot && currentDaySlot.availableJoin.length > 0) {
+          validJoinableClasses = currentDaySlot.availableJoin.filter(item => {
+              return passesFilters(item.teacher) && modeFilterCheck(item);
           });
       }
       
       if (validNewTeachers.length > 0 || validJoinableClasses.length > 0) {
+        // Success: Open the selection modal
         this._showSelectionModal(validNewTeachers, validJoinableClasses, daysInSchedule, time);
+      } else {
+        // Failure: Provide explicit feedback
+        showToast('The selected filters hide all available teachers for this slot. Adjust your Language/Mode filters.', 'warning');
       }
     });
   }
 
-  renderTimetable() {
+renderTimetable() {
     const timetableEl = this.modalEl.querySelector('#teacher-finder-timetable');
     
     let timeHeader = '<div class="timetable-header">Time</div>';
     this.days.forEach(day => timeHeader += `<div class="timetable-header">${day}</div>`);
     let gridHtml = timeHeader;
+
+    // --- Helper to check class mode match ---
+    const modeFilterCheck = (item) => {
+        const classIsOnline = item.cls.isOnline || false;
+        // If we want Online, only show Online classes
+        if (this.state.isOnline && !classIsOnline) return false; 
+        // If we want Offline, only show Offline classes
+        if (!this.state.isOnline && classIsOnline) return false; 
+        return true;
+    };
+    
+    // Helper to check filters (must be the same as the one in attachEventListeners)
+    const passesFilters = (teacher) => {
+        if (this.state.teacherSearch && !teacher.name.toLowerCase().includes(this.state.teacherSearch)) return false;
+        const activeLangs = Object.keys(this.state.languages).filter(k => this.state.languages[k]);
+        if (activeLangs.length > 0) {
+           const tLangs = (teacher.languages || '').toLowerCase();
+           if (!activeLangs.some(lang => tLangs.includes(lang.toLowerCase()))) return false;
+        }
+        const tMode = teacher.teachingMode || 'offline';
+        if (this.state.isOnline && tMode === 'offline') return false;
+        if (!this.state.isOnline && tMode === 'online') return false;
+        return true;
+    };
+
 
     for (const slotStart of this.timeSlots) {
       gridHtml += `<div class="timetable-time">${slotStart}</div>`;
@@ -265,13 +332,14 @@ export class TeacherFinderModal extends BaseModal {
         let isTotallyBooked = false;
 
         if (slotData) {
-            // Filter slot data using the shared filter logic
-            const filteredNew = slotData.availableNew.filter(t => this._shouldShowTeacher(t));
-            const filteredJoin = slotData.availableJoin.filter(item => this._shouldShowTeacher(item.teacher));
-            const filteredBooked = slotData.booked.filter(t => this._shouldShowTeacher(t)); 
+            // Apply Teacher and Mode Filters to available slots
+            const filteredNew = slotData.availableNew.filter(t => passesFilters(t));
+            const filteredJoin = slotData.availableJoin.filter(item => passesFilters(item.teacher) && modeFilterCheck(item));
+            const filteredBooked = slotData.booked.filter(t => passesFilters(t));
 
             if (filteredNew.length > 0) hasNewOption = true;
             if (filteredJoin.length > 0) hasJoinOption = true;
+            
             if (!hasNewOption && !hasJoinOption && filteredBooked.length > 0) isTotallyBooked = true;
         }
 
@@ -282,8 +350,8 @@ export class TeacherFinderModal extends BaseModal {
         if (isScheduleDay) { 
             if (hasNewOption || hasJoinOption) {
               slotClass = 'is-available'; 
-              const totalCount = (slotData?.availableNew.filter(t => this._shouldShowTeacher(t)).length || 0) + 
-                                 (slotData?.availableJoin.filter(i => this._shouldShowTeacher(i.teacher)).length || 0);
+              const totalCount = (slotData?.availableNew.filter(passesFilters).length || 0) + 
+                                 (slotData?.availableJoin.filter(item => passesFilters(item.teacher) && modeFilterCheck(item)).length || 0);
               slotText = `${totalCount} Open`;
               disabled = '';
               
@@ -300,73 +368,102 @@ export class TeacherFinderModal extends BaseModal {
             }
         }
         
-        gridHtml += `
-          <button class="timetable-slot ${slotClass}" data-day="${day}" data-time="${slotStart}" ${disabled}>${slotText}</button>
-        `;
+        gridHtml += `<button class="timetable-slot ${slotClass}" data-day="${day}" data-time="${slotStart}" ${disabled}>${slotText}</button>`;
       }
     }
     timetableEl.innerHTML = `<div class="timetable-grid-full">${gridHtml}</div>`;
   }
 
-  _showSelectionModal(newTeachers, joinableClasses, days, time) {
+_showSelectionModal(newTeachers, joinableClasses, days, time) {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
-    overlay.style.cssText = `position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: ${this.zIndex + 10};`;
-
-    const newHtml = newTeachers.length > 0 ? `
-        <div class="mb-4">
-            <h4 class="text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">Create New Class</h4>
-            <div class="space-y-2">
-                ${newTeachers.map(t => `
-                    <button class="create-new-btn w-full text-left p-3 rounded-md border hover:bg-blue-50 flex justify-between items-center group" data-id="${t.id}">
-                        <span class="font-medium text-gray-700 group-hover:text-blue-700">${t.name}</span>
-                        <span class="text-xs text-blue-600 opacity-0 group-hover:opacity-100">Create →</span>
-                    </button>
-                `).join('')}
-            </div>
-        </div>
-    ` : '';
-
-    const joinHtml = joinableClasses.length > 0 ? `
-        <div>
-            <h4 class="text-sm font-bold text-green-600 uppercase tracking-wider mb-2">Join Existing Group</h4>
-            <div class="space-y-2">
-                ${joinableClasses.map(item => `
-                    <button class="join-class-btn w-full text-left p-3 rounded-md border bg-green-50 border-green-200 hover:bg-green-100 flex justify-between items-center group" data-class-id="${item.cls.id}">
-                        <div>
-                            <div class="font-medium text-gray-800">${item.cls.displayName || item.cls.name}</div>
-                            <div class="text-xs text-gray-500">Teacher: ${item.teacher.name}</div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-xs font-bold bg-white text-green-800 px-2 py-1 rounded-full border border-green-200">
-                                ${item.cls.students?.length || 0}/10
-                            </span>
-                        </div>
-                    </button>
-                `).join('')}
-            </div>
-        </div>
-    ` : '';
+    // Use blur and higher z-index for focus
+    overlay.style.cssText = `position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: ${this.zIndex + 10}; backdrop-filter: blur(2px);`;
 
     const scheduleString = days.join('/');
+    const studentName = this.student.name || 'Prospective Student';
+    
+    // --- 1. Build "Join Existing Group" Content (Left/Green) ---
+    const groupsContent = joinableClasses.length > 0 ? `
+        <div class="space-y-3 p-5">
+            ${joinableClasses.map(item => `
+                <button class="join-class-btn w-full text-left p-3 rounded-xl border border-green-200 bg-white shadow-sm hover:shadow-md hover:border-green-400 transition group relative overflow-hidden" data-class-id="${item.cls.id}">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-green-400"></div>
+                    <div class="pl-2">
+                        <div class="font-bold text-gray-800">${item.cls.displayName || item.cls.name}</div>
+                        <div class="text-xs text-gray-500 mt-1">Teacher: <span class="font-medium text-gray-700">${item.teacher.name}</span></div>
+                        <div class="flex items-center gap-2 mt-2">
+                           <span class="text-xs font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                                ${item.cls.students?.length || 0}/10 Students
+                           </span>
+                           <span class="text-xs text-green-600 font-medium">Click to Join →</span>
+                        </div>
+                    </div>
+                </button>
+            `).join('')}
+        </div>
+    ` : `
+        <div class="h-full flex flex-col items-center justify-center text-center text-gray-400 p-4">
+           <span class="text-3xl mb-2">🤷‍♂️</span>
+           <p class="text-sm">No joinable groups match this criteria.</p>
+        </div>
+    `;
 
+    // --- 2. Build "Create New Class" Content (Right/Blue) ---
+    const individualContent = newTeachers.length > 0 ? `
+        <div class="space-y-2 p-5">
+            ${newTeachers.map(t => `
+                <button class="create-new-btn w-full text-left p-2.5 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition flex items-center justify-between group" data-id="${t.id}">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">
+                            ${t.name.substring(0,2).toUpperCase()}
+                        </div>
+                        <span class="font-medium text-gray-700 group-hover:text-blue-800">${t.name}</span>
+                    </div>
+                    <span class="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity text-xl">⊕</span>
+                </button>
+            `).join('')}
+        </div>
+    ` : `
+        <div class="text-center text-gray-400 py-10 p-5">
+           <p class="text-sm">No teachers available to create a new class.</p>
+        </div>
+    `;
+
+    // --- 3. Assemble Final Modal Structure ---
     overlay.innerHTML = `
-      <div class="modal-content bg-white rounded-lg shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col">
-        <div class="p-5 border-b">
-          <h3 class="text-lg font-semibold">Select Option</h3>
-          <p class="text-sm text-gray-600">For ${scheduleString} @ ${time}</p>
+      <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col" style="height: 500px;">
+        
+        <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+          <div>
+             <h3 class="text-lg font-bold text-gray-800">Assign Student: ${studentName}</h3>
+             <p class="text-sm text-gray-500">Slot: <span class="font-medium text-gray-800">${scheduleString} @ ${time}</span></p>
+          </div>
+          <button class="cancel-btn text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
         </div>
-        <div class="p-6 overflow-y-auto">
-          ${newHtml}
-          ${newTeachers.length && joinableClasses.length ? '<hr class="my-4 border-gray-200">' : ''}
-          ${joinHtml}
-        </div>
-        <div class="bg-gray-50 px-6 py-3 border-t text-right">
-          <button class="cancel-btn btn-secondary">Cancel</button>
+
+        <div class="flex-1 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 overflow-hidden">
+            
+            <div class="bg-green-50/30 overflow-y-auto flex flex-col">
+                <h4 class="text-xs font-bold text-green-700 uppercase tracking-wider px-5 pt-5 flex items-center gap-2">
+                    <span>👥 Join Existing Group</span>
+                    <span class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full text-[10px]">${joinableClasses.length}</span>
+                </h4>
+                ${groupsContent}
+            </div>
+
+            <div class="bg-white overflow-y-auto flex flex-col">
+                <h4 class="text-xs font-bold text-blue-600 uppercase tracking-wider px-5 pt-5 flex items-center gap-2">
+                    <span>👤 Start New Class (Individual or Group)</span>
+                    <span class="bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full text-[10px]">${newTeachers.length}</span>
+                </h4>
+                ${individualContent}
+            </div>
         </div>
       </div>
     `;
 
+    // --- 4. Attach Listeners ---
     const closeMiniModal = () => overlay.remove();
     overlay.addEventListener('click', (e) => { if (e.target === overlay) closeMiniModal(); });
     overlay.querySelector('.cancel-btn').addEventListener('click', closeMiniModal);
