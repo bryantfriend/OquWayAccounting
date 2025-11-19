@@ -68,22 +68,17 @@ class AccountingApp {
     });
   }
 
-  /**
+/**
    * --- UPDATED: Shows the Beta Welcome Screen ---
+   * This function is now set to always display upon load.
    * @param {boolean} force - If true, show modal even if already seen.
    */
   checkAndShowWelcome(force = false) {
-    // Check if they have seen this specific version
-    const hasSeen = localStorage.getItem('oquway_beta_welcome_v1');
-    
-    // If NOT forced (auto-load) AND they have seen it, do nothing.
-    if (!force && hasSeen) return;
-
-    // Prevent duplicate modals
+    // Prevent duplicate modals (still needed if the bug button is double-clicked)
     if (document.getElementById('welcome-modal')) return;
 
     const welcomeModal = document.createElement('div');
-    welcomeModal.id = 'welcome-modal'; // Add ID to prevent duplicates
+    welcomeModal.id = 'welcome-modal';
     welcomeModal.className = "fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-[100] p-4 backdrop-blur-sm transition-opacity duration-300";
     
     // Slightly different text if they clicked the bug button vs auto-welcome
@@ -91,20 +86,35 @@ class AccountingApp {
     const btnText = force ? "Close" : "I Understand – Let's Start!";
 
     welcomeModal.innerHTML = `
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-100 transition-transform duration-300">
-        <div class="bg-gradient-to-r from-blue-600 to-blue-500 p-6 text-white text-center">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-xl overflow-hidden transform scale-100 transition-transform duration-300 flex flex-col max-h-[90vh]">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-500 p-6 text-white text-center flex-shrink-0">
           <div class="text-5xl mb-2">${force ? '🛠️' : '🚀'}</div>
           <h2 class="text-2xl font-bold">${titleText}</h2>
           <p class="text-blue-100 text-sm mt-1">System Version 1.0 (Open Beta)</p>
         </div>
 
-        <div class="p-6 space-y-4">
+        <div class="p-6 space-y-4 overflow-y-auto flex-grow custom-scrollbar">
           <p class="text-gray-600 leading-relaxed">
             ${force 
               ? "Need help? Found a bug? Use the direct line below to contact the developer." 
-              : "You are one of the first users to access the new accounting system! Because this is an <strong>Open Beta</strong>, you might encounter some rough edges."}
+              : "You are one of the first users to access the new accounting system! Please check the latest changes below."}
           </p>
 
+          <div class="bg-gray-50 border-l-4 border-gray-200 p-4 rounded-r-md">
+            <h3 class="font-bold text-lg text-gray-700 cursor-pointer flex items-center justify-between" id="updates-toggle">
+                <span>Latest Updates (V1.1)</span>
+                <span class="transform transition-transform duration-200 rotate-0">▶</span>
+            </h3>
+            <div id="updates-content" class="mt-2 hidden">
+                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 pl-4">
+                    <li><strong>Scheduling:</strong> Added Language, Mode, and Teacher Search filters to the finding tool.</li>
+                    <li><strong>Class Assignment:</strong> New split-pane modal to instantly create new classes or join existing groups.</li>
+                    <li><strong>Payroll:</strong> Implemented custom 26th-to-25th pay periods and detailed print reports.</li>
+                    <li><strong>Stability:</strong> Fixed payment recalculation on edit and resolved date parsing bugs.</li>
+                </ul>
+            </div>
+          </div>
+          
           <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md">
             <h3 class="font-bold text-red-700 flex items-center gap-2">
               <span>🚨 Urgent Issues</span>
@@ -122,12 +132,12 @@ class AccountingApp {
           <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-md">
             <h3 class="font-bold text-blue-700">📝 Feedback</h3>
             <p class="text-sm text-blue-600 mt-1">
-              Notice a typo? Have an idea for a feature? Please let me know! Your feedback helps build a better system.
+              Notice a typo? Have an idea for a feature? Please let me know!
             </p>
           </div>
         </div>
 
-        <div class="bg-gray-50 px-6 py-4 text-center">
+        <div class="bg-gray-50 px-6 py-4 text-center flex-shrink-0">
           <button id="close-welcome-btn" class="w-full btn-primary py-3 text-lg shadow-lg">
             ${btnText}
           </button>
@@ -137,13 +147,18 @@ class AccountingApp {
 
     document.body.appendChild(welcomeModal);
 
-    // Handle Close
+    // Attach event listener for the updates toggle
+    const updatesToggle = welcomeModal.querySelector('#updates-toggle');
+    const updatesContent = welcomeModal.querySelector('#updates-content');
+    const toggleIcon = updatesToggle.querySelector('span:last-child');
+
+    updatesToggle.addEventListener('click', () => {
+      updatesContent.classList.toggle('hidden');
+      toggleIcon.classList.toggle('rotate-90'); // Rotate icon for visual feedback
+    });
+
+    // Handle Close button
     welcomeModal.querySelector('#close-welcome-btn').addEventListener('click', () => {
-      // Only mark as seen if it was the auto-welcome
-      if (!force) {
-          localStorage.setItem('oquway_beta_welcome_v1', 'true');
-      }
-      
       welcomeModal.classList.add('opacity-0');
       setTimeout(() => welcomeModal.remove(), 300);
     });
