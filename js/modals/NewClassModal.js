@@ -3,24 +3,26 @@ import { BaseModal } from './BaseModal.js';
 import { generateDisplayName, generateClassCode } from '../modules/classUtils.js';
 
 export class NewClassModal extends BaseModal {
-  constructor(student, teacher, days, time, isOnline, onSave) {
+  // 1. ADD locationId to the arguments here (it will be passed from TeacherFinderModal)
+  constructor(student, teacher, locationId, days, time, isOnline, onSave) {
     super('Create New Class', { size: 'max-w-lg', onSave });
     this.student = student;
     this.teacher = teacher;
+    this.locationId = locationId; // 2. Store it
     this.days = days;
     this.time = time;
     this.isOnline = isOnline;
-    this.isGroup = false; // Default to Individual, but changeable
+    this.isGroup = false; 
   }
 
   renderContent() {
+    // ... (existing render code - remains the same)
     const studentName = this.student.name || 'New Student';
     const teacherName = this.teacher.name || 'N/A';
     const scheduleString = this.days.join('/');
 
     return `
       <div class="space-y-5">
-        
         <div class="p-4 bg-blue-50 rounded-lg border border-blue-100 flex justify-between items-start">
            <div class="text-sm text-gray-700 space-y-1">
              <p><strong>Teacher:</strong> ${teacherName}</p>
@@ -28,11 +30,11 @@ export class NewClassModal extends BaseModal {
              <p><strong>Mode:</strong> ${this.isOnline ? 'Online 💻' : 'Offline 🛖'}</p>
            </div>
            <div class="text-right">
-              <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">Primary Student</span>
-              <p class="font-semibold">${studentName}</p>
+             <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">Primary Student</span>
+             <p class="font-semibold">${studentName}</p>
            </div>
         </div>
-
+        
         <div>
           <label class="block text-sm font-medium mb-2">Class Type</label>
           <div class="grid grid-cols-2 gap-4">
@@ -48,7 +50,7 @@ export class NewClassModal extends BaseModal {
         </div>
 
         <div class="space-y-3">
-           <div>
+            <div>
             <label class="block text-sm font-medium">Subject</label>
             <input id="clsSubject" type="text" class="mt-1 block w-full border rounded px-3 py-2" value="General English">
           </div>
@@ -72,7 +74,6 @@ export class NewClassModal extends BaseModal {
   }
 
   attachEventListeners() {
-    // Type Toggle Logic
     const btns = this.modalEl.querySelectorAll('.type-btn');
     btns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -113,21 +114,21 @@ export class NewClassModal extends BaseModal {
     
     const studentName = this.student.name.split(' ')[0];
     
-    // Smart Naming
     let name = `Individual: ${this.student.name}`;
     let displayName = `👤 ${studentName} @ ${this.days[0].slice(0,1)}${this.time.split(':')[0]}`;
     
     if (this.isGroup) {
-        name = `${gradeLevel} Group`;
-        displayName = generateDisplayName(dayTimes, selectedDays, this.isOnline, true); // Using Utils
+        name = `${gradeLevel} Group - ${subject}`;
+        displayName = generateDisplayName(dayTimes, selectedDays, this.isOnline, true);
     }
 
     const newClassData = {
       subject, language, gradeLevel,
+      locationId: this.locationId, // 3. CORRECTLY ADDED to the payload
       teacherId: this.teacher.id,
       teacherName: this.teacher.name,
       isOnline: this.isOnline,
-      isGroup: this.isGroup, // ✅ Dynamic
+      isGroup: this.isGroup,
       days: this.days,
       dayTimes: dayTimes,
       students: [], 
