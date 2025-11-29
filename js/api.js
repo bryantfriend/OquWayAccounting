@@ -10,7 +10,25 @@ import {
 export const db = firestoreDB;
 export const auth = firebaseAuth;
 
-let ACTIVE_LOCATION_ID = 'default'; // This will be set by app.js
+let ACTIVE_LOCATION_ID = 'default'; 
+
+// --- FIX: Export the ID or a getter for it ---
+export function getActiveLocationId() {
+    return ACTIVE_LOCATION_ID;
+}
+
+/**
+ * Helper to build the query filters.
+ */
+function buildLocationFilter() {
+    // FIX: If the location is 'default', return an empty array (no filter applied).
+    if (ACTIVE_LOCATION_ID === 'default') {
+        // This allows the query to find legacy documents missing the locationId field.
+        return [];
+    }
+    // Otherwise, strictly filter by the selected location ID.
+    return [where('locationId', '==', ACTIVE_LOCATION_ID)];
+}
 
 /**
  * Sets the active location for all API calls.
@@ -122,13 +140,21 @@ export function getDateRange(timeRange, year, month) {
 // ─────────────────────────────────────────────
 
 export async function getUsersByRole(role, includeArchived = false) {
-  const usersRef = collection(db, 'users');
-  const q = includeArchived
-    ? query(usersRef, where('role', '==', role))
-    : query(usersRef, where('role', '==', role), where('active', '==', true));
-    
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const usersRef = collection(db, 'users');
+    
+    // Combine role filter with location filter
+    let q = query(
+        usersRef, 
+        where('role', '==', role),
+        ...buildLocationFilter() // <-- ADDED CONDITIONAL FILTER
+    );
+
+    if (!includeArchived) {
+        q = query(q, where('active', '==', true));
+    }
+    
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
 
 export async function getUserById(userId) {
@@ -187,6 +213,45 @@ export async function restoreUser(userId) {
     active: true,
     archivedAt: null
   });
+}
+
+/**
+ * Fetches data records that are missing a locationId (for migration/audit).
+ * Queries for docs where 'locationId' is explicitly null.
+ */
+
+export async function getUnassignedData(collectionName, roleFilter = null) {
+    const ref = collection(db, collectionName);
+    
+    // FIX: Start with a broad query, removing the restrictive locationId filter.
+    // We will rely on the client (migration.js) to filter for documents where locationId IS NULL/UNDEFINED.
+    let q = ref; 
+    
+    // 1. Add role filter for 'users' collection
+    if (collectionName === 'users' && roleFilter) {
+        q = query(q, where('role', '==', roleFilter));
+        q = query(q, where('active', '==', true)); // Still only show active users
+    }
+    
+    const snap = await getDocs(q);
+    
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+/**
+ * Batch assigns a location to multiple documents (for migration).
+ */
+export async function assignLocationBatch(collectionName, itemIds, newLocationId) {
+    const batch = writeBatch(db);
+    
+    itemIds.forEach(id => {
+        const ref = doc(db, collectionName, id);
+        batch.update(ref, { 
+            locationId: newLocationId 
+        });
+    });
+
+    await batch.commit();
 }
 
 // ─────────────────────────────────────────────
@@ -310,6 +375,37 @@ export async function getExpenseCategories(locationId = 'default') {
     .filter((c) => c.active !== false);
 }
 
+// ─────────────────────────────────────────────
+// 📍 LOCATION MANAGEMENT
+// ─────────────────────────────────────────────
+
+/**
+ * Fetches locations the current user is authorized to see.
+ * SuperAdmins see all; others see their assigned location.
+ * @param {string} userRole - The role of the current user.
+ * @param {string} locationId - The user's assigned location ID.
+ */
+export async function getAuthorizedLocations(userRole, locationId) {
+    const locationsRef = collection(db, 'locations');
+    
+    // SuperAdmins see all locations
+    if (userRole === 'superAdmin' || userRole === 'platformAdmin') {
+        const snap = await getDocs(locationsRef);
+        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    }
+    
+    // All other users only see their assigned location (or the default one)
+    const targetId = locationId || 'default';
+    const docSnap = await getDoc(doc(locationsRef, targetId));
+    
+    if (docSnap.exists()) {
+        return [{ id: docSnap.id, ...docSnap.data() }];
+    }
+    
+    // Fallback: Return only a default location if necessary
+    return [{ id: 'default', name: 'Default Location' }]; 
+}
+
 export async function addExpenseCategory(locationId, { name, color = '#4F46E5', description = '' }) {
   const ref = collection(db, 'locations', ACTIVE_LOCATION_ID, 'expense_categories');
   await addDoc(ref, {
@@ -336,12 +432,13 @@ export async function deleteExpenseCategory(locationId, id) {
 // ─────────────────────────────────────────────
 
 export async function getPaymentsByDate(startDate, endDate) {
-  const paymentsRef = collection(db, 'payments');
-  const q = query(paymentsRef,
-    where('timestamp', '>=', startDate),
-    where('timestamp', '<=', endDate),
-    orderBy('timestamp', 'desc')
-  );
+    const paymentsRef = collection(db, 'payments');
+    const q = query(paymentsRef,
+        ...buildLocationFilter(), // <-- ADDED CONDITIONAL FILTER
+        where('timestamp', '>=', startDate),
+        where('timestamp', '<=', endDate),
+        orderBy('timestamp', 'desc')
+    );
   
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => {
@@ -538,8 +635,11 @@ export async function searchStudents(searchTerm) {
   const usersRef = collection(db, 'users');
   const searchTermEnd = searchTerm + '\uf8ff';
 
-  const nameQuery = query(usersRef, where('role', '==', 'student'), orderBy('name'), startAt(searchTerm), endAt(searchTermEnd), limit(10));
-  const phoneQuery = query(usersRef, where('role', '==', 'student'), orderBy('phone'), startAt(searchTerm), endAt(searchTermEnd), limit(10));
+  // Base filters for both queries: role and locationId
+  const baseFilters = [where('role', '==', 'student'), where('locationId', '==', ACTIVE_LOCATION_ID)];
+
+  const nameQuery = query(usersRef, ...baseFilters, orderBy('name'), startAt(searchTerm), endAt(searchTermEnd), limit(10));
+  const phoneQuery = query(usersRef, ...baseFilters, orderBy('phone'), startAt(searchTerm), endAt(searchTermEnd), limit(10));
 
   const [nameSnap, phoneSnap] = await Promise.all([ getDocs(nameQuery), getDocs(phoneQuery) ]);
 
@@ -555,12 +655,13 @@ export async function searchStudents(searchTerm) {
 // ─────────────────────────────────────────────
 
 export async function getExpensesByDate(startDate, endDate) {
-  const expensesRef = collection(db, 'expenses');
-  const q = query(expensesRef,
-    where('date', '>=', startDate),
-    where('date', '<=', endDate),
-    orderBy('date', 'desc')
-  );
+    const expensesRef = collection(db, 'expenses');
+    const q = query(expensesRef,
+        ...buildLocationFilter(), // <-- ADDED CONDITIONAL FILTER
+        where('date', '>=', startDate),
+        where('date', '<=', endDate),
+        orderBy('date', 'desc')
+    );
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => {
     const data = doc.data();
@@ -606,7 +707,12 @@ export async function deleteExpense(id) {
 
 export async function getRecurringBills(timeRange = 'monthly', year, month) {
   const ref = collection(db, 'recurring_bills');
-  const q = query(ref, where('active', '==', true));
+  const q = query(
+        ref, 
+        where('active', '==', true),
+        // ✨ FIX: ENFORCE LOCATION FILTER
+        where('locationId', '==', getActiveLocationId())
+    );
   const snap = await getDocs(q);
 
   const bills = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
