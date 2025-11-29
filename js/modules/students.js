@@ -445,60 +445,57 @@ function handleAddStudent() {
  * --- UPDATED: Now handles creating NEW classes during an edit ---
  */
 function handleEditStudent(studentId) {
-  const student = state.students.find(s => s.id === studentId);
-  if (!student) {
-    console.error("Edit FAILED: Student not found for ID:", studentId);
-    return;
-  }
-  
-  const oldClassId = student.classId || null;
-
-  const modal = new StudentModal(
-    student, 
-    state.classes,
-    state.students,
-    state.teachers,
-    async (saveData, studentId) => {
-      ui.showGlobalLoader('Updating student...');
-      try {
-        // 1. Unwrap the data
-        const { studentData, pendingClass } = saveData; 
-        
-        // 2. Check if we need to create a NEW class first
-        if (pendingClass) {
-            // 2a. Add this student to the class
-            pendingClass.students = [studentId];
-            // 2b. Save the new class
-            const newClassId = await api.saveClass(pendingClass);
-            // 2c. Update the student data with the new real ID
-            studentData.classId = newClassId;
-        }
-
-        // 3. Save the student updates
-        const newClassId = studentData.classId || null;
-        await api.saveUser(studentData, studentId);
-        
-        // 4. Manage Class Lists (Add/Remove student from class arrays)
-        if (oldClassId && oldClassId !== newClassId) {
-          await api.updateClassStudents(oldClassId, studentId, 'remove');
-        }
-        
-        if (newClassId && newClassId !== oldClassId) {
-          await api.updateClassStudents(newClassId, studentId, 'add');
-        }
-        
-        ui.showToast('Student updated!', 'success');
-        await render(); // Refresh to see the new class name
-
-      } catch (error) {
-        console.error("SAVE FAILED!", error);
-        ui.showToast('Failed to update student. See console.', 'error');
-      } finally {
-        ui.hideGlobalLoader();
-      }
+    const student = state.students.find(s => s.id === studentId);
+    if (!student) {
+        console.error("Edit FAILED: Student not found for ID:", studentId);
+        return;
     }
-  );
-  modal.show();
+    
+    const oldClassId = student.classId || null;
+
+    const modal = new StudentModal(
+      student, 
+      state.classes,
+      state.students,
+      state.teachers,
+      async (saveData, studentId) => {
+        ui.showGlobalLoader('Updating student...');
+        try {
+          const { studentData, pendingClass } = saveData; 
+          
+          // 1. Check if we need to create a NEW class first
+          if (pendingClass) {
+              pendingClass.students = [studentId];
+              const newClassId = await api.saveClass(pendingClass);
+              studentData.classId = newClassId; // Assign new ID to the student data
+          }
+
+          // 2. Save the student updates (including the new classId from step 1 or selection)
+          await api.saveUser(studentData, studentId); // THIS ENSURES classID IS SAVED
+
+          const newClassId = studentData.classId || null;
+          
+          // 3. Manage Class Lists (Add/Remove student from class arrays)
+          if (oldClassId && oldClassId !== newClassId) {
+            await api.updateClassStudents(oldClassId, studentId, 'remove');
+          }
+          
+          if (newClassId && newClassId !== oldClassId) {
+            await api.updateClassStudents(newClassId, studentId, 'add');
+          }
+          
+          ui.showToast('Student updated!', 'success');
+          await render();
+
+        } catch (error) {
+          console.error("SAVE FAILED!", error);
+          ui.showToast('Failed to update student. See console.', 'error');
+        } finally {
+          ui.hideGlobalLoader();
+        }
+      }
+    );
+    modal.show();
 }
 
 function handleAddPayment(studentId) {
