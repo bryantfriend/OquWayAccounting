@@ -3,6 +3,7 @@ import { BaseModal } from './BaseModal.js';
 import * as api from '../api.js';
 import { NewClassModal } from './NewClassModal.js'; // <-- UPDATED IMPORT
 import { showToast } from '../ui.js';
+import { getActiveLocationId } from '../api.js';
 
 // --- Helpers (Unchanged) ---
 function _isSlotAvailable(slotStart, slotEnd, availability) {
@@ -489,10 +490,12 @@ _showSelectionModal(newTeachers, joinableClasses, days, time) {
     document.body.appendChild(overlay);
   }
 
+// Flow A: Create New
   async _handleBookSlot(teacher, days, time) {
     const classModal = new NewClassModal(
       this.student,
       teacher,
+      getActiveLocationId(),
       days,
       time,
       this.state.isOnline,
